@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Secretary — Frontend
 
-## Getting Started
+Next.js 15 App Router frontend for Personal Secretary, an AI-powered personal planning assistant.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20 LTS or later
+- pnpm (`npm install -g pnpm`)
+- The backend (`personal-secretary-back`) running on `http://localhost:8000`
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cp .env.local.example .env.local
+# Edit .env.local if your backend runs on a different port
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The root page redirects to `/signin` if you're not authenticated, or to `/plans` if you are.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.local.example`. The only client-side variable is:
 
-## Learn More
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Dev server with Turbopack |
+| `pnpm build` | Production build |
+| `pnpm lint` | ESLint |
+| `pnpm test:e2e` | Playwright e2e tests (requires backend + `SESSION_COOKIE` env var) |
+| `pnpm test:e2e:ui` | Playwright interactive UI |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## E2E tests
 
-## Deploy on Vercel
+The e2e tests in `e2e/` require a real backend session. Set the `SESSION_COOKIE` environment variable to a valid session cookie value extracted from a real sign-in (or a test fixture endpoint on the backend):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+SESSION_COOKIE=<cookie-value> pnpm test:e2e
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without `SESSION_COOKIE` the authenticated test cases are skipped; the unauthenticated redirect test still runs.
+
+## Architecture
+
+See `CLAUDE.md` for full architecture notes and `requirements/2026-05-16.md` (local-only, gitignored) for the authoritative spec.
