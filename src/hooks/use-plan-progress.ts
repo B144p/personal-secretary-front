@@ -1,13 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { apiFetch, toastApiError } from "@/lib/api";
+import { apiFetch, toastApiError, ApiError } from "@/lib/api";
 import {
   PlanProgressSchema,
   FeedbackResponseSchema,
   type PlanProgress,
   type FeedbackBody,
 } from "@/lib/schemas";
-import { ApiError } from "@/lib/api";
 
 export function usePlanProgress() {
   return useQuery<PlanProgress>({

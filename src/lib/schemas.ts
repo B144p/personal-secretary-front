@@ -23,7 +23,7 @@ export const ErrorCodeSchema = z.enum([
 export const ApiErrorSchema = z.object({
   code: ErrorCodeSchema,
   message: z.string(),
-  details: z.record(z.unknown()).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;

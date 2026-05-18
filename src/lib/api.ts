@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-async function parseError(res: Response): Promise<ApiError> {
+async function parseEnvelope(res: Response): Promise<ApiError | null> {
   try {
     const json: unknown = await res.json();
     const parsed = ApiErrorSchema.safeParse(json);
@@ -22,12 +22,9 @@ async function parseError(res: Response): Promise<ApiError> {
       return new ApiError(parsed.data.code, parsed.data);
     }
   } catch {
-    // fall through to generic error
+    // not JSON or unparseable — caller will throw a generic Error
   }
-  return new ApiError("UNAUTHENTICATED", {
-    code: "UNAUTHENTICATED",
-    message: `HTTP ${res.status}`,
-  });
+  return null;
 }
 
 export async function apiFetch<T>(
@@ -44,23 +41,23 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    const err = await parseError(res);
+    const envelope = await parseEnvelope(res);
 
-    if (err.code === "UNAUTHENTICATED") {
-      if (typeof window !== "undefined") {
+    if (envelope) {
+      if (envelope.code === "UNAUTHENTICATED" && typeof window !== "undefined") {
         window.location.href = "/signin";
-      }
-      throw err;
-    }
-
-    if (err.code === "GOOGLE_REAUTH_REQUIRED") {
-      if (typeof window !== "undefined") {
+      } else if (
+        envelope.code === "GOOGLE_REAUTH_REQUIRED" &&
+        typeof window !== "undefined"
+      ) {
         window.location.href = "/signin?reauth=1";
       }
-      throw err;
+      throw envelope;
     }
 
-    throw err;
+    // Unparseable error — surface as a generic Error so toastApiError shows
+    // the fallback message instead of mis-routing the user to /signin.
+    throw new Error(`HTTP ${res.status}`);
   }
 
   if (res.status === 204) {

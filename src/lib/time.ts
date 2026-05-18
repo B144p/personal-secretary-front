@@ -1,4 +1,4 @@
-import { format, isPast } from "date-fns";
+import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 
 export function formatInTz(
@@ -8,9 +8,4 @@ export function formatInTz(
 ): string {
   const zoned = toZonedTime(new Date(dateStr), tz);
   return format(zoned, fmt);
-}
-
-export function isPastInTz(dateStr: string, tz: string): boolean {
-  const zoned = toZonedTime(new Date(dateStr), tz);
-  return isPast(zoned);
 }

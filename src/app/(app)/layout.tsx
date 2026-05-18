@@ -1,24 +1,20 @@
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { AppShell } from "@/components/shell/app-shell";
 import { UserSchema, type User } from "@/lib/schemas";
 
 async function getMe(): Promise<User | null> {
   const cookieStore = await cookies();
-  const headersList = await headers();
-  const cookieHeader = cookieStore.toString();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
 
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/me`,
-      {
-        cache: "no-store",
-        headers: {
-          Cookie: cookieHeader,
-          "x-forwarded-for": headersList.get("x-forwarded-for") ?? "",
-        },
-      }
-    );
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/me`, {
+      cache: "no-store",
+      headers: { Cookie: cookieHeader },
+    });
     if (!res.ok) return null;
     const json: unknown = await res.json();
     return UserSchema.parse(json);
