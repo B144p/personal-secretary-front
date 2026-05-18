@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { apiFetch, toastApiError } from "@/lib/api";
+import { apiFetch, toastApiError, ApiError } from "@/lib/api";
 import {
   PlanSchema,
   ScheduleResponseSchema,
@@ -81,7 +81,25 @@ export function useSchedulePlan(planId: string) {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
       qc.invalidateQueries({ queryKey: ["plans"] });
     },
-    onError: toastApiError,
+    onError: (err) => {
+      if (err instanceof ApiError && err.code === "ANOTHER_PLAN_SCHEDULED") {
+        // Find the currently scheduled plan from the cache to offer a direct link
+        const plans = qc.getQueryData<import("@/lib/schemas").Plan[]>(["plans"]);
+        const scheduled = plans?.find((p) => p.status === "SCHEDULED" && !p.is_paused);
+        toast.error("You already have an active scheduled plan.", {
+          action: scheduled
+            ? {
+                label: "View it",
+                onClick: () => {
+                  window.location.href = `/plans/${scheduled.id}`;
+                },
+              }
+            : undefined,
+        });
+        return;
+      }
+      toastApiError(err);
+    },
   });
 }
 
