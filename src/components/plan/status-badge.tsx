@@ -5,6 +5,7 @@ const planVariants: Record<PlanStatus, "default" | "secondary" | "outline" | "de
   DRAFT: "secondary",
   READY: "outline",
   SCHEDULED: "default",
+  HOLD: "outline",
   DONE: "secondary",
 };
 
@@ -12,6 +13,7 @@ const planLabels: Record<PlanStatus, string> = {
   DRAFT: "Draft",
   READY: "Ready",
   SCHEDULED: "Scheduled",
+  HOLD: "Hold",
   DONE: "Done",
 };
 

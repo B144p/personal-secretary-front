@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export default async function RootPage() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("session");
+  const session = cookieStore.get("jwt");
 
   if (session) {
     redirect("/plans");

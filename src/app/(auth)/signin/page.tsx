@@ -20,7 +20,7 @@ export default async function SignInPage({
         </p>
       </div>
       <Button asChild size="lg">
-        <a href={`${API_BASE}/google/auth`}>Sign in with Google</a>
+        <a href={`${API_BASE}/auth/google`}>Sign in with Google</a>
       </Button>
     </div>
   );

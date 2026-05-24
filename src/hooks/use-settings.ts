@@ -10,6 +10,7 @@ export function useSettings() {
       const data = await apiFetch<unknown>("/me/settings");
       return SettingsSchema.parse(data);
     },
+    staleTime: 5 * 60 * 1000,
   });
 }
 

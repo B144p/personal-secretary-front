@@ -55,7 +55,7 @@ export function useRegenerate(planId: string) {
     }) =>
       apiFetch<Plan>(`/plan/${planId}/re_generate`, {
         method: "POST",
-        body: JSON.stringify({ taskId, reason }),
+        body: JSON.stringify({ task_id: taskId, reason }),
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
@@ -107,7 +107,10 @@ export function useMarkReady(planId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch(`/plan/${planId}/approve`, { method: "PATCH" }),
+      apiFetch(`/plan/${planId}/transition`, {
+        method: "PATCH",
+        body: JSON.stringify({ to: "READY" }),
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
       qc.invalidateQueries({ queryKey: ["plans"] });

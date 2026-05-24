@@ -9,7 +9,7 @@ export function LogoutButton() {
 
   async function handleLogout() {
     try {
-      await apiFetch("/auth/logout", { method: "POST" });
+      await apiFetch("/auth/google/logout", { method: "POST" });
     } catch (err) {
       toastApiError(err);
       return;

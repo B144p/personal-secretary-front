@@ -31,7 +31,13 @@ export type ApiErrorBody = z.infer<typeof ApiErrorSchema>;
 
 // ── Enums ───────────────────────────────────────────────────────────────────
 
-export const PlanStatusSchema = z.enum(["DRAFT", "READY", "SCHEDULED", "DONE"]);
+export const PlanStatusSchema = z.enum([
+  "DRAFT",
+  "READY",
+  "SCHEDULED",
+  "HOLD",
+  "DONE",
+]);
 export const TaskStatusSchema = z.enum([
   "PENDING",
   "IN_PROGRESS",
