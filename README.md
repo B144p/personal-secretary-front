@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Secretary — Frontend
 
-## Getting Started
+The web interface for Personal Secretary.
 
-First, run the development server:
+You give it a goal. It breaks the goal into tasks, schedules them on your Google Calendar around your availability, and adjusts the plan every day based on what you actually got done.
+
+This repo is the frontend (Next.js). It talks to the backend (`personal-secretary-back`) which handles AI, scheduling, and Google Calendar.
+
+## Getting started
+
+You need the backend running first. Then:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cp .env.local.example .env.local
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and sign in with Google.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
 
-## Learn More
+Change the URL if your backend runs on a different port.
 
-To learn more about Next.js, take a look at the following resources:
+## Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Dev server |
+| `pnpm build` | Production build |
+| `pnpm start` | Start production build |
+| `pnpm typecheck` | Type check |
+| `pnpm lint` | Lint |
+| `pnpm test:e2e` | E2E tests (requires a valid `SESSION_COOKIE` env var) |
+| `pnpm test:e2e:ui` | E2E tests with interactive UI |
