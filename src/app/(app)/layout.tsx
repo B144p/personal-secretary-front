@@ -31,5 +31,8 @@ export default async function AppLayout({
   const user = await getMe();
   if (!user) redirect("/signin");
 
+  if (user.status === "PENDING") redirect("/pending-approval");
+  if (user.status === "REJECTED") redirect("/access-denied");
+
   return <AppShell user={user}>{children}</AppShell>;
 }
