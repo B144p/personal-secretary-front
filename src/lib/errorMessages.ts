@@ -3,6 +3,9 @@ import type { ErrorCode } from "@/lib/schemas";
 export const errorMessages: Record<ErrorCode, string> = {
   UNAUTHENTICATED: "You are not signed in.",
   GOOGLE_REAUTH_REQUIRED: "Your Google access expired. Please sign in again.",
+  ACCOUNT_PENDING: "Your account is pending approval.",
+  ACCOUNT_REJECTED: "Your access has been rejected.",
+  CANNOT_REJECT_ADMIN: "The admin account cannot be rejected.",
   PLAN_NOT_FOUND: "Plan not found.",
   PLAN_NOT_EDITABLE: "This plan cannot be edited in its current state.",
   INVALID_TRANSITION: "That status transition is not allowed.",
