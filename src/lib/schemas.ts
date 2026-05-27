@@ -165,9 +165,12 @@ export type SpecialDay = z.infer<typeof SpecialDaySchema>;
 
 // ── Request bodies ───────────────────────────────────────────────────────────
 
+export const FeedbackStatusSchema = z.enum(["PENDING", "IN_PROGRESS", "DONE"]);
+export type FeedbackStatus = z.infer<typeof FeedbackStatusSchema>;
+
 export const StatusChangeSchema = z.object({
   taskId: z.string(),
-  newStatus: TaskStatusSchema,
+  newStatus: FeedbackStatusSchema,
 });
 
 export const FeedbackBodySchema = z.object({
