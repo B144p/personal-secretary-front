@@ -10,12 +10,15 @@ const NAV_ITEMS = [
   { label: "Settings", href: "/settings" },
 ];
 
-export function Nav() {
+export function Nav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const items = isAdmin
+    ? [...NAV_ITEMS, { label: "Admin", href: "/admin/users" }]
+    : NAV_ITEMS;
 
   return (
     <nav className="flex items-center gap-1">
-      {NAV_ITEMS.map(({ label, href }) => (
+      {items.map(({ label, href }) => (
         <Link
           key={href}
           href={href}

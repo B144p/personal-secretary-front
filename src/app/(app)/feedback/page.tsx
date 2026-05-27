@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/lib/api";
-import type { Task, TaskStatus } from "@/lib/schemas";
+import type { Task, FeedbackStatus } from "@/lib/schemas";
 
 function collectLeaves(tasks: Task[]): Task[] {
   return tasks.flatMap((t) =>
@@ -24,11 +24,10 @@ function collectLeaves(tasks: Task[]): Task[] {
   );
 }
 
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
+const STATUS_OPTIONS: { value: FeedbackStatus; label: string }[] = [
   { value: "PENDING", label: "Pending" },
   { value: "IN_PROGRESS", label: "In Progress" },
   { value: "DONE", label: "Done" },
-  { value: "HOLD", label: "Hold" },
 ];
 
 export default function FeedbackPage() {
@@ -36,7 +35,7 @@ export default function FeedbackPage() {
   const { data: settings } = useSettings();
   const { mutate: submit, isPending, error } = useSubmitFeedback();
 
-  const [statusMap, setStatusMap] = useState<Record<string, TaskStatus>>({});
+  const [statusMap, setStatusMap] = useState<Record<string, FeedbackStatus>>({});
   const [contextText, setContextText] = useState("");
 
   const plan = progress?.plan;
@@ -95,7 +94,7 @@ export default function FeedbackPage() {
               <Select
                 value={current}
                 onValueChange={(v) =>
-                  setStatusMap((m) => ({ ...m, [leaf.id]: v as TaskStatus }))
+                  setStatusMap((m) => ({ ...m, [leaf.id]: v as FeedbackStatus }))
                 }
               >
                 <SelectTrigger className="w-36">
