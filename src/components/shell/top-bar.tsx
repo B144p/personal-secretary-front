@@ -5,9 +5,7 @@ import { LogoutButton } from "@/components/shell/logout-button";
 import type { User } from "@/lib/schemas";
 
 export function TopBar({ user }: { user: User }) {
-  const isAdmin =
-    !!process.env.NEXT_PUBLIC_ADMIN_EMAIL &&
-    user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+  const isAdmin = user.status === "ADMIN";
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">

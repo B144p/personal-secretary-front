@@ -26,7 +26,7 @@ async function getMe() {
 export default async function AccessDeniedPage() {
   const user = await getMe();
   if (!user) redirect("/signin");
-  if (user.status === "APPROVED") redirect("/plans");
+  if (user.status === "APPROVED" || user.status === "ADMIN") redirect("/plans");
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-center">

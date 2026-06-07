@@ -117,7 +117,7 @@ export type Plan = z.infer<typeof PlanSchema>;
 
 // ── User ─────────────────────────────────────────────────────────────────────
 
-export const UserStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
+export const UserStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED", "ADMIN"]);
 export type UserStatus = z.infer<typeof UserStatusSchema>;
 
 export const UserSchema = z.object({

@@ -21,12 +21,15 @@ import {
 import type { UserStatus } from "@/lib/schemas";
 
 function StatusBadge({ status }: { status: UserStatus }) {
-  const variants: Record<UserStatus, "default" | "secondary" | "destructive"> =
-    {
-      APPROVED: "default",
-      PENDING: "secondary",
-      REJECTED: "destructive",
-    };
+  const variants: Record<
+    UserStatus,
+    "default" | "secondary" | "destructive" | "outline"
+  > = {
+    ADMIN: "outline",
+    APPROVED: "default",
+    PENDING: "secondary",
+    REJECTED: "destructive",
+  };
   return <Badge variant={variants[status]}>{status}</Badge>;
 }
 
@@ -37,16 +40,14 @@ export default function AdminUsersPage() {
   const approveMutation = useApproveUser();
   const rejectMutation = useRejectUser();
 
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-
   useEffect(() => {
-    if (!meLoading && me && me.email !== adminEmail) {
+    if (!meLoading && me && me.status !== "ADMIN") {
       router.replace("/plans");
     }
-  }, [me, meLoading, adminEmail, router]);
+  }, [me, meLoading, router]);
 
   if (meLoading || !me) return null;
-  if (me.email !== adminEmail) return null;
+  if (me.status !== "ADMIN") return null;
 
   if (isLoading) {
     return <p className="text-muted-foreground">Loading users…</p>;
@@ -102,7 +103,7 @@ export default function AdminUsersPage() {
                     </Button>
                   </>
                 )}
-                {user.status === "APPROVED" && user.email !== adminEmail && (
+                {user.status === "APPROVED" && (
                   <Button
                     size="sm"
                     variant="outline"
