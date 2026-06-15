@@ -5,6 +5,9 @@ import { z } from "zod";
 export const ErrorCodeSchema = z.enum([
   "UNAUTHENTICATED",
   "GOOGLE_REAUTH_REQUIRED",
+  "ACCOUNT_PENDING",
+  "ACCOUNT_REJECTED",
+  "CANNOT_REJECT_ADMIN",
   "PLAN_NOT_FOUND",
   "PLAN_NOT_EDITABLE",
   "INVALID_TRANSITION",
@@ -114,14 +117,33 @@ export type Plan = z.infer<typeof PlanSchema>;
 
 // ── User ─────────────────────────────────────────────────────────────────────
 
+export const UserStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED", "ADMIN"]);
+export type UserStatus = z.infer<typeof UserStatusSchema>;
+
 export const UserSchema = z.object({
   id: z.string(),
-  google_id: z.string(),
+  google_id: z.string().optional(),
   email: z.string().email(),
+  name: z.string().nullable().optional(),
+  avatar_url: z.string().nullable().optional(),
+  status: UserStatusSchema,
   created_at: z.string().datetime({ offset: true }),
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+
+export const AdminUserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string().nullable().optional(),
+  avatar_url: z.string().nullable().optional(),
+  status: UserStatusSchema,
+  created_at: z.string().datetime({ offset: true }),
+});
+
+export type AdminUser = z.infer<typeof AdminUserSchema>;
 
 // ── Settings ─────────────────────────────────────────────────────────────────
 
@@ -143,9 +165,12 @@ export type SpecialDay = z.infer<typeof SpecialDaySchema>;
 
 // ── Request bodies ───────────────────────────────────────────────────────────
 
+export const FeedbackStatusSchema = z.enum(["PENDING", "IN_PROGRESS", "DONE"]);
+export type FeedbackStatus = z.infer<typeof FeedbackStatusSchema>;
+
 export const StatusChangeSchema = z.object({
   taskId: z.string(),
-  newStatus: TaskStatusSchema,
+  newStatus: FeedbackStatusSchema,
 });
 
 export const FeedbackBodySchema = z.object({
