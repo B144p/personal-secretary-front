@@ -2,7 +2,9 @@ import { toast } from "sonner";
 import { ApiErrorSchema, type ApiErrorBody, type ErrorCode } from "@/lib/schemas";
 import { errorMessages } from "@/lib/errorMessages";
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+// Same-origin proxy: client calls /api/*, rewritten to the backend in
+// next.config.ts. Keeps the jwt cookie first-party (works in Brave, no CORS).
+const BASE = "/api";
 
 export class ApiError extends Error {
   constructor(
