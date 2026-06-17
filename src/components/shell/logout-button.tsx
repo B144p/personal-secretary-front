@@ -2,14 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { apiFetch, toastApiError } from "@/lib/api";
+import { toastApiError } from "@/lib/api";
 
 export function LogoutButton() {
   const router = useRouter();
 
   async function handleLogout() {
     try {
-      await apiFetch("/auth/google/logout", { method: "POST" });
+      // Clears the httpOnly jwt cookie on the frontend domain (server-side).
+      const res = await fetch("/auth/logout", { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch (err) {
       toastApiError(err);
       return;
