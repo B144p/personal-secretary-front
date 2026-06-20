@@ -200,6 +200,7 @@ export const FeedbackResponseSchema = z.object({
   rescheduled: z.number(),
   planStatus: PlanStatusSchema,
   unscheduledTaskIds: z.array(z.string()),
+  rescheduleFailed: z.boolean().optional(),
 });
 
 export const PlanProgressSchema = z.object({
