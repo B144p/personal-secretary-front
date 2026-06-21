@@ -190,9 +190,17 @@ export const TaskPatchSchema = z.object({
   sequence_order: z.number().int().min(0).optional(),
 });
 
+export const TaskCreateSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  estimated_minutes: z.number().int().min(15).max(240).optional(),
+  parent_task_id: z.string().optional(),
+});
+
 export type StatusChange = z.infer<typeof StatusChangeSchema>;
 export type FeedbackBody = z.infer<typeof FeedbackBodySchema>;
 export type TaskPatch = z.infer<typeof TaskPatchSchema>;
+export type TaskCreate = z.infer<typeof TaskCreateSchema>;
 
 // ── Responses ────────────────────────────────────────────────────────────────
 

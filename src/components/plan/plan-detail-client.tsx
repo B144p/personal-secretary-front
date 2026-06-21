@@ -1,5 +1,6 @@
 "use client";
 
+import { PlusIcon } from "lucide-react";
 import { usePlan } from "@/hooks/use-plan";
 import { useSettings } from "@/hooks/use-settings";
 import { PlanStatusBadge } from "@/components/plan/status-badge";
@@ -9,17 +10,27 @@ import {
   RegenerateDialog,
   useRegenerateDialog,
 } from "@/components/plan/regenerate-dialog";
+import { AddTaskDialog, useAddTaskDialog } from "@/components/plan/add-task-dialog";
+import {
+  DeleteTaskDialog,
+  useDeleteTaskDialog,
+} from "@/components/plan/delete-task-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export function PlanDetailClient({ planId }: { planId: string }) {
   const { data: plan, isLoading, error } = usePlan(planId);
   const { data: settings } = useSettings();
   const tz = settings?.time_zone ?? "UTC";
   const regenDialog = useRegenerateDialog();
+  const addDialog = useAddTaskDialog();
+  const delDialog = useDeleteTaskDialog();
 
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
   if (error || !plan)
     return <p className="text-destructive">Failed to load plan.</p>;
+
+  const canEdit = plan.status === "DRAFT" && !plan.is_paused;
 
   return (
     <div className="space-y-6">
@@ -41,8 +52,33 @@ export function PlanDetailClient({ planId }: { planId: string }) {
 
       {/* Task tree */}
       <div className="rounded-lg border">
+        <div className="flex items-center justify-between border-b px-4 py-2">
+          <span className="text-sm font-medium">Steps</span>
+          {canEdit && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => addDialog.trigger(undefined)}
+            >
+              <PlusIcon className="mr-2 size-4" />
+              Add step
+            </Button>
+          )}
+        </div>
         {plan.tasks.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">No tasks yet.</p>
+          <div className="p-4 text-sm text-muted-foreground">
+            No tasks yet.
+            {canEdit && (
+              <Button
+                size="sm"
+                variant="link"
+                className="px-1"
+                onClick={() => addDialog.trigger(undefined)}
+              >
+                Add the first step
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="divide-y">
             {plan.tasks.map((task) => (
@@ -54,6 +90,8 @@ export function PlanDetailClient({ planId }: { planId: string }) {
                 isPaused={plan.is_paused}
                 tz={tz}
                 onRegenerate={(taskId) => regenDialog.trigger(taskId)}
+                onAddSubtask={(taskId) => addDialog.trigger(taskId)}
+                onDelete={(task) => delDialog.trigger(task)}
               />
             ))}
           </div>
@@ -65,6 +103,18 @@ export function PlanDetailClient({ planId }: { planId: string }) {
         taskId={regenDialog.taskId}
         open={regenDialog.open}
         onClose={regenDialog.close}
+      />
+      <AddTaskDialog
+        planId={plan.id}
+        parentTaskId={addDialog.parentTaskId}
+        open={addDialog.open}
+        onClose={addDialog.close}
+      />
+      <DeleteTaskDialog
+        planId={plan.id}
+        task={delDialog.task}
+        open={delDialog.open}
+        onClose={delDialog.close}
       />
     </div>
   );

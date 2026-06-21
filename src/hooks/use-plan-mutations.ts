@@ -6,6 +6,7 @@ import {
   PlanSchema,
   ScheduleResponseSchema,
   type Plan,
+  type TaskCreate,
   type TaskPatch,
 } from "@/lib/schemas";
 
@@ -36,6 +37,33 @@ export function usePatchTask(planId: string) {
         method: "PATCH",
         body: JSON.stringify(patch),
       }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["plan", planId] });
+    },
+    onError: toastApiError,
+  });
+}
+
+export function useCreateTask(planId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: TaskCreate) =>
+      apiFetch(`/plan/${planId}/tasks`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["plan", planId] });
+    },
+    onError: toastApiError,
+  });
+}
+
+export function useDeleteTask(planId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (taskId: string) =>
+      apiFetch(`/plan/${planId}/tasks/${taskId}`, { method: "DELETE" }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
     },
