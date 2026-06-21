@@ -28,6 +28,7 @@ const STATUS_OPTIONS: { value: FeedbackStatus; label: string }[] = [
   { value: "PENDING", label: "Pending" },
   { value: "IN_PROGRESS", label: "In Progress" },
   { value: "DONE", label: "Done" },
+  { value: "HOLD", label: "Hold" },
 ];
 
 export default function FeedbackPage() {
