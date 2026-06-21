@@ -25,6 +25,15 @@ function countTasks(tasks: Task[]): number {
   );
 }
 
+function countHeldLeaves(tasks: Task[]): number {
+  return tasks.reduce((sum, t) => {
+    if (t.children.length === 0) {
+      return sum + (t.status === "HOLD" ? 1 : 0);
+    }
+    return sum + countHeldLeaves(t.children);
+  }, 0);
+}
+
 export default function PlansPage() {
   const { data: plans, isLoading, error } = usePlans();
   const { data: settings } = useSettings();
@@ -70,32 +79,38 @@ export default function PlansPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {plans.map((plan) => (
-              <TableRow key={plan.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/plans/${plan.id}`}
-                      className="font-medium hover:underline"
-                    >
-                      {plan.title}
-                    </Link>
-                    {plan.is_paused && (
-                      <Badge variant="outline">Paused</Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <PlanStatusBadge status={plan.status} />
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {countTasks(plan.tasks)}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {formatInTz(plan.created_at, tz, "MMM d, yyyy")}
-                </TableCell>
-              </TableRow>
-            ))}
+            {plans.map((plan) => {
+              const heldCount = countHeldLeaves(plan.tasks);
+              return (
+                <TableRow key={plan.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/plans/${plan.id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {plan.title}
+                      </Link>
+                      {plan.is_paused && (
+                        <Badge variant="outline">Paused</Badge>
+                      )}
+                      {heldCount > 0 && (
+                        <Badge variant="outline">{heldCount} on hold</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <PlanStatusBadge status={plan.status} />
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {countTasks(plan.tasks)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatInTz(plan.created_at, tz, "MMM d, yyyy")}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}

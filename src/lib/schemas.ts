@@ -165,7 +165,12 @@ export type SpecialDay = z.infer<typeof SpecialDaySchema>;
 
 // ── Request bodies ───────────────────────────────────────────────────────────
 
-export const FeedbackStatusSchema = z.enum(["PENDING", "IN_PROGRESS", "DONE"]);
+export const FeedbackStatusSchema = z.enum([
+  "PENDING",
+  "IN_PROGRESS",
+  "DONE",
+  "HOLD",
+]);
 export type FeedbackStatus = z.infer<typeof FeedbackStatusSchema>;
 
 export const StatusChangeSchema = z.object({
@@ -200,6 +205,7 @@ export const FeedbackResponseSchema = z.object({
   rescheduled: z.number(),
   planStatus: PlanStatusSchema,
   unscheduledTaskIds: z.array(z.string()),
+  rescheduleFailed: z.boolean().optional(),
 });
 
 export const PlanProgressSchema = z.object({

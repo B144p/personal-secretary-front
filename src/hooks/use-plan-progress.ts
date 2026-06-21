@@ -29,7 +29,9 @@ export function useSubmitFeedback() {
       return FeedbackResponseSchema.parse(data);
     },
     onSuccess: (result) => {
-      if (result.planStatus === "DONE") {
+      if (result.rescheduleFailed) {
+        toast.warning("Feedback saved, but couldn't update the calendar. Please try again shortly.");
+      } else if (result.planStatus === "DONE") {
         toast.success("Plan complete! All tasks are done.");
       } else if (result.rescheduled > 0) {
         toast.success(`Feedback submitted. ${result.rescheduled} task(s) rescheduled.`);
