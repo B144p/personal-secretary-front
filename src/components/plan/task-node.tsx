@@ -12,6 +12,11 @@ import { cn } from "@/lib/utils";
 import { TaskStatusBadge } from "@/components/plan/status-badge";
 import { TaskEditPopover } from "@/components/plan/task-edit-popover";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { PlanStatus, Task } from "@/lib/schemas";
 import { formatInTz } from "@/lib/time";
 
@@ -70,9 +75,16 @@ export function TaskNode({
 
         {/* Content */}
         <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-          <span className="min-w-0 truncate font-medium text-sm" title={task.title}>
-            {task.title}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="min-w-0 truncate font-medium text-sm">
+                {task.title}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm break-words">
+              {task.title}
+            </TooltipContent>
+          </Tooltip>
           <TaskStatusBadge status={task.status} />
           {activeEvent && (
             <span className="text-xs text-muted-foreground">
