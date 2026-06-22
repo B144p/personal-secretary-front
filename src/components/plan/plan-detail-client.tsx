@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import { ClockIcon, PlusIcon } from "lucide-react";
 import { usePlan } from "@/hooks/use-plan";
 import { useSettings } from "@/hooks/use-settings";
 import { PlanStatusBadge } from "@/components/plan/status-badge";
@@ -17,6 +17,18 @@ import {
 } from "@/components/plan/delete-task-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatDuration } from "@/lib/time";
+import type { Task } from "@/lib/schemas";
+
+function sumLeafMinutes(tasks: Task[]): number {
+  return tasks.reduce(
+    (sum, t) =>
+      t.children.length === 0
+        ? sum + (t.estimated_minutes ?? 0)
+        : sum + sumLeafMinutes(t.children),
+    0
+  );
+}
 
 export function PlanDetailClient({ planId }: { planId: string }) {
   const { data: plan, isLoading, error } = usePlan(planId);
@@ -31,6 +43,7 @@ export function PlanDetailClient({ planId }: { planId: string }) {
     return <p className="text-destructive">Failed to load plan.</p>;
 
   const canEdit = plan.status === "DRAFT" && !plan.is_paused;
+  const totalMinutes = sumLeafMinutes(plan.tasks);
 
   return (
     <div className="space-y-6">
@@ -39,6 +52,12 @@ export function PlanDetailClient({ planId }: { planId: string }) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold">{plan.title}</h1>
           <PlanStatusBadge status={plan.status} />
+          {totalMinutes > 0 && (
+            <Badge variant="outline" className="gap-1">
+              <ClockIcon className="size-3" />
+              {formatDuration(totalMinutes)}
+            </Badge>
+          )}
           {plan.is_paused && <Badge variant="outline">Paused</Badge>}
         </div>
 

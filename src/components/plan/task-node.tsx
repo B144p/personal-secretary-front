@@ -56,7 +56,7 @@ export function TaskNode({
         {!isLeaf ? (
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="mt-0.5 shrink-0 text-muted-foreground"
+            className="mt-0.5 shrink-0 cursor-pointer text-muted-foreground"
           >
             {expanded ? (
               <ChevronDownIcon className="size-4" />
@@ -70,7 +70,9 @@ export function TaskNode({
 
         {/* Content */}
         <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-          <span className="font-medium text-sm truncate">{task.title}</span>
+          <span className="min-w-0 truncate font-medium text-sm" title={task.title}>
+            {task.title}
+          </span>
           <TaskStatusBadge status={task.status} />
           {activeEvent && (
             <span className="text-xs text-muted-foreground">
