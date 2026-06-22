@@ -163,6 +163,28 @@ export const SettingsSchema = z.object({
 export type Settings = z.infer<typeof SettingsSchema>;
 export type SpecialDay = z.infer<typeof SpecialDaySchema>;
 
+// ── AI settings ──────────────────────────────────────────────────────────────
+
+export const AllowedAiModelSchema = z.enum(["gpt-5", "gpt-5-mini", "gpt-5-nano"]);
+
+export const AiSettingsSchema = z.object({
+  model_plan_generation: AllowedAiModelSchema,
+  model_regeneration: AllowedAiModelSchema,
+  model_scheduling: AllowedAiModelSchema,
+  available_models: z.array(AllowedAiModelSchema),
+});
+
+export type AllowedAiModel = z.infer<typeof AllowedAiModelSchema>;
+export type AiSettings = z.infer<typeof AiSettingsSchema>;
+
+export const UpdateAiModelsSchema = z.object({
+  model_plan_generation: AllowedAiModelSchema,
+  model_regeneration: AllowedAiModelSchema,
+  model_scheduling: AllowedAiModelSchema,
+});
+
+export type UpdateAiModels = z.infer<typeof UpdateAiModelsSchema>;
+
 // ── Request bodies ───────────────────────────────────────────────────────────
 
 export const FeedbackStatusSchema = z.enum([

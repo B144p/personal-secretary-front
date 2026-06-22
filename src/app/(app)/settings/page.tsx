@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SettingsSchema, type Settings } from "@/lib/schemas";
+import { AiProviderTab } from "./ai-provider-tab";
 
 const schema = SettingsSchema.refine(
   (d) => d.working_hours_end > d.working_hours_start,
@@ -247,7 +248,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="ai-provider">
-          <p className="text-sm text-muted-foreground">Coming soon.</p>
+          <AiProviderTab />
         </TabsContent>
       </Tabs>
     </div>
