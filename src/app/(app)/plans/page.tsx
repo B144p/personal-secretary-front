@@ -74,13 +74,13 @@ export default function PlansPage() {
           </Button>
         </div>
       ) : (
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
               <TableHead>Goal</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tasks</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead className="w-32">Status</TableHead>
+              <TableHead className="w-20">Tasks</TableHead>
+              <TableHead className="w-36">Created</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -94,12 +94,14 @@ export default function PlansPage() {
                         <TooltipTrigger asChild>
                           <Link
                             href={`/plans/${plan.id}`}
-                            className="block max-w-[260px] truncate font-medium hover:underline"
+                            className="block min-w-0 truncate font-medium hover:underline"
                           >
                             {plan.title}
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent>{plan.title}</TooltipContent>
+                        <TooltipContent className="max-w-sm break-words">
+                          {plan.title}
+                        </TooltipContent>
                       </Tooltip>
                       {plan.is_paused && (
                         <Badge variant="outline">Paused</Badge>
