@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, PencilIcon } from "lucide-react";
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function TaskEditPopover({ planId, task }: Props) {
+  const [open, setOpen] = useState(false);
   const { mutate: patch, isPending } = usePatchTask(planId);
 
   const form = useForm<TaskPatch>({
@@ -41,11 +43,14 @@ export function TaskEditPopover({ planId, task }: Props) {
   });
 
   function onSubmit(values: TaskPatch) {
-    patch({ taskId: task.id, patch: values });
+    patch(
+      { taskId: task.id, patch: values },
+      { onSuccess: () => setOpen(false) }
+    );
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="size-6 opacity-0 group-hover:opacity-100">
           <PencilIcon className="size-3" />
