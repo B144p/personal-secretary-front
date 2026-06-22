@@ -14,6 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatInTz } from "@/lib/time";
 import type { Task } from "@/lib/schemas";
 import { PlusIcon } from "lucide-react";
@@ -69,13 +74,13 @@ export default function PlansPage() {
           </Button>
         </div>
       ) : (
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
               <TableHead>Goal</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tasks</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead className="w-32">Status</TableHead>
+              <TableHead className="w-20">Tasks</TableHead>
+              <TableHead className="w-36">Created</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -84,13 +89,20 @@ export default function PlansPage() {
               return (
                 <TableRow key={plan.id}>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/plans/${plan.id}`}
-                        className="font-medium hover:underline"
-                      >
-                        {plan.title}
-                      </Link>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            href={`/plans/${plan.id}`}
+                            className="block min-w-0 truncate font-medium hover:underline"
+                          >
+                            {plan.title}
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm break-words">
+                          {plan.title}
+                        </TooltipContent>
+                      </Tooltip>
                       {plan.is_paused && (
                         <Badge variant="outline">Paused</Badge>
                       )}

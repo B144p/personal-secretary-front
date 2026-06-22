@@ -1,13 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDownIcon, ChevronRightIcon, RefreshCwIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskStatusBadge } from "@/components/plan/status-badge";
 import { TaskEditPopover } from "@/components/plan/task-edit-popover";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { PlanStatus, Task } from "@/lib/schemas";
 import { formatInTz } from "@/lib/time";
+
+const MAX_TASK_DEPTH = 4;
 
 interface Props {
   task: Task;
@@ -16,6 +29,8 @@ interface Props {
   isPaused: boolean;
   tz: string;
   onRegenerate: (taskId: string) => void;
+  onAddSubtask: (taskId: string) => void;
+  onDelete: (task: Task) => void;
 }
 
 export function TaskNode({
@@ -25,6 +40,8 @@ export function TaskNode({
   isPaused,
   tz,
   onRegenerate,
+  onAddSubtask,
+  onDelete,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const isLeaf = task.children.length === 0;
@@ -44,7 +61,7 @@ export function TaskNode({
         {!isLeaf ? (
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="mt-0.5 shrink-0 text-muted-foreground"
+            className="mt-0.5 shrink-0 cursor-pointer text-muted-foreground"
           >
             {expanded ? (
               <ChevronDownIcon className="size-4" />
@@ -58,7 +75,16 @@ export function TaskNode({
 
         {/* Content */}
         <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-          <span className="font-medium text-sm truncate">{task.title}</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="min-w-0 truncate font-medium text-sm">
+                {task.title}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm break-words">
+              {task.title}
+            </TooltipContent>
+          </Tooltip>
           <TaskStatusBadge status={task.status} />
           {activeEvent && (
             <span className="text-xs text-muted-foreground">
@@ -76,7 +102,29 @@ export function TaskNode({
         {/* Actions */}
         <div className="ml-auto flex shrink-0 items-center gap-1">
           {isDraft && !isPaused && (
-            <TaskEditPopover planId={planId} task={task} />
+            <>
+              <TaskEditPopover planId={planId} task={task} />
+              {task.depth < MAX_TASK_DEPTH && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6 opacity-0 group-hover:opacity-100"
+                  onClick={() => onAddSubtask(task.id)}
+                  title="Add sub-step"
+                >
+                  <PlusIcon className="size-3" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6 text-destructive opacity-0 group-hover:opacity-100"
+                onClick={() => onDelete(task)}
+                title="Delete this step"
+              >
+                <Trash2Icon className="size-3" />
+              </Button>
+            </>
           )}
           {planStatus !== "DONE" && !isPaused && (
             <Button
@@ -104,6 +152,8 @@ export function TaskNode({
               isPaused={isPaused}
               tz={tz}
               onRegenerate={onRegenerate}
+              onAddSubtask={onAddSubtask}
+              onDelete={onDelete}
             />
           ))}
         </div>
