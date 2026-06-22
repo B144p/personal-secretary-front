@@ -4,6 +4,7 @@ import {
   AiSettingsSchema,
   type AiSettings,
   type UpdateAiModels,
+  type UpdateApiKey,
 } from "@/lib/schemas";
 import { toast } from "sonner";
 
@@ -29,6 +30,22 @@ export function useUpdateAiModels() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ai-settings"] });
       toast.success("AI model settings saved.");
+    },
+    onError: toastApiError,
+  });
+}
+
+export function useUpdateApiKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateApiKey) =>
+      apiFetch<AiSettings>("/me/ai-settings/api-key", {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ai-settings"] });
+      toast.success("API key saved.");
     },
     onError: toastApiError,
   });

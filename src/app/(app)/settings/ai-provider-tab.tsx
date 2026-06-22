@@ -4,7 +4,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { useAiSettings, useUpdateAiModels } from "@/hooks/use-ai-settings";
+import {
+  useAiSettings,
+  useUpdateAiModels,
+  useUpdateApiKey,
+} from "@/hooks/use-ai-settings";
 import {
   Form,
   FormControl,
@@ -14,6 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -21,7 +27,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UpdateAiModelsSchema, type UpdateAiModels } from "@/lib/schemas";
+import {
+  UpdateAiModelsSchema,
+  UpdateApiKeySchema,
+  type UpdateAiModels,
+  type UpdateApiKey,
+} from "@/lib/schemas";
 
 const PROCESSES: Array<{
   name: keyof UpdateAiModels;
@@ -45,7 +56,60 @@ const PROCESSES: Array<{
   },
 ];
 
-export function AiProviderTab() {
+function ApiKeySection() {
+  const { data: aiSettings, isLoading } = useAiSettings();
+  const { mutate: save, isPending } = useUpdateApiKey();
+
+  const form = useForm<UpdateApiKey>({
+    resolver: zodResolver(UpdateApiKeySchema),
+    defaultValues: { api_key: "" },
+  });
+
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+
+  const status = aiSettings?.api_key;
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((v) => {
+          save(v, { onSuccess: () => form.reset({ api_key: "" }) });
+        })}
+        className="space-y-4"
+      >
+        <div>
+          <h2 className="text-sm font-medium">OpenAI API key</h2>
+          <p className="text-sm text-muted-foreground">
+            {status?.configured
+              ? `Configured · sk-••••${status.last4}`
+              : "Not configured. AI features are disabled until you add a key."}
+          </p>
+        </div>
+        <FormField
+          control={form.control}
+          name="api_key"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                {status?.configured ? "Replace API key" : "API key"}
+              </FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="sk-..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+          Save API Key
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+function ModelSettingsForm() {
   const { data: aiSettings, isLoading } = useAiSettings();
   const { mutate: save, isPending } = useUpdateAiModels();
 
@@ -68,10 +132,7 @@ export function AiProviderTab() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit((v) => save(v))}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit((v) => save(v))} className="space-y-6">
         {PROCESSES.map(({ name, label, description }) => (
           <FormField
             key={name}
@@ -109,5 +170,15 @@ export function AiProviderTab() {
         </Button>
       </form>
     </Form>
+  );
+}
+
+export function AiProviderTab() {
+  return (
+    <div className="space-y-6">
+      <ApiKeySection />
+      <Separator />
+      <ModelSettingsForm />
+    </div>
   );
 }
