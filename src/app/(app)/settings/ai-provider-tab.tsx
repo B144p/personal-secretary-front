@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -30,6 +29,7 @@ import {
 import {
   UpdateAiModelsSchema,
   UpdateApiKeySchema,
+  type AiSettings,
   type UpdateAiModels,
   type UpdateApiKey,
 } from "@/lib/schemas";
@@ -111,24 +111,27 @@ function ApiKeySection() {
 
 function ModelSettingsForm() {
   const { data: aiSettings, isLoading } = useAiSettings();
+
+  if (isLoading || !aiSettings) {
+    return <p className="text-muted-foreground">Loading…</p>;
+  }
+
+  return <ModelSettingsFormInner aiSettings={aiSettings} />;
+}
+
+function ModelSettingsFormInner({ aiSettings }: { aiSettings: AiSettings }) {
   const { mutate: save, isPending } = useUpdateAiModels();
 
   const form = useForm<UpdateAiModels>({
     resolver: zodResolver(UpdateAiModelsSchema),
     defaultValues: {
-      model_plan_generation: "gpt-5",
-      model_regeneration: "gpt-5",
-      model_scheduling: "gpt-5-nano",
+      model_plan_generation: aiSettings.model_plan_generation,
+      model_regeneration: aiSettings.model_regeneration,
+      model_scheduling: aiSettings.model_scheduling,
     },
   });
 
-  useEffect(() => {
-    if (aiSettings) form.reset(aiSettings);
-  }, [aiSettings, form]);
-
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
-
-  const availableModels = aiSettings?.available_models ?? [];
+  const availableModels = aiSettings.available_models;
 
   return (
     <Form {...form}>

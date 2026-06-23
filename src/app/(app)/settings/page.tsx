@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, Trash2Icon, Loader2Icon } from "lucide-react";
@@ -41,16 +40,25 @@ const ALL_TIMEZONES = Intl.supportedValuesOf("timeZone");
 
 export default function SettingsPage() {
   const { data: settings, isLoading } = useSettings();
+
+  if (isLoading || !settings) {
+    return <p className="text-muted-foreground">Loading…</p>;
+  }
+
+  return <SettingsFormInner settings={settings} />;
+}
+
+function SettingsFormInner({ settings }: { settings: Settings }) {
   const { mutate: save, isPending } = useUpdateSettings();
 
   const form = useForm<Settings>({
     resolver: zodResolver(schema),
     defaultValues: {
-      working_hours_start: "10:00",
-      working_hours_end: "20:00",
-      days_off: [],
-      time_zone: "Asia/Bangkok",
-      special_days: [],
+      working_hours_start: settings.working_hours_start,
+      working_hours_end: settings.working_hours_end,
+      days_off: settings.days_off,
+      time_zone: settings.time_zone,
+      special_days: settings.special_days,
     },
   });
 
@@ -58,12 +66,6 @@ export default function SettingsPage() {
     control: form.control,
     name: "special_days",
   });
-
-  useEffect(() => {
-    if (settings) form.reset(settings);
-  }, [settings, form]);
-
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
 
   return (
     <div className="mx-auto max-w-lg space-y-8">
