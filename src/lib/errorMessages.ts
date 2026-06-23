@@ -23,4 +23,7 @@ export const errorMessages: Record<ErrorCode, string> = {
     "Could not fit all tasks in the next 30 days. Try adjusting your working hours.",
   GOOGLE_CALENDAR_ERROR:
     "Google Calendar returned an error. Please try again.",
+  AI_KEY_NOT_CONFIGURED:
+    "Add your OpenAI API key in Settings > AI provider before using AI features.",
+  INVALID_API_KEY: "That OpenAI API key looks invalid. Please check it and try again.",
 };

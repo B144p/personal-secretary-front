@@ -21,6 +21,8 @@ export const ErrorCodeSchema = z.enum([
   "AI_GENERATION_FAILED",
   "SCHEDULING_INFEASIBLE",
   "GOOGLE_CALENDAR_ERROR",
+  "AI_KEY_NOT_CONFIGURED",
+  "INVALID_API_KEY",
 ]);
 
 export const ApiErrorSchema = z.object({
@@ -162,6 +164,41 @@ export const SettingsSchema = z.object({
 
 export type Settings = z.infer<typeof SettingsSchema>;
 export type SpecialDay = z.infer<typeof SpecialDaySchema>;
+
+// ── AI settings ──────────────────────────────────────────────────────────────
+
+export const AllowedAiModelSchema = z.enum(["gpt-5", "gpt-5-mini", "gpt-5-nano"]);
+
+export const ApiKeyStatusSchema = z.object({
+  configured: z.boolean(),
+  last4: z.string().nullable(),
+});
+
+export const AiSettingsSchema = z.object({
+  model_plan_generation: AllowedAiModelSchema,
+  model_regeneration: AllowedAiModelSchema,
+  model_scheduling: AllowedAiModelSchema,
+  available_models: z.array(AllowedAiModelSchema),
+  api_key: ApiKeyStatusSchema,
+});
+
+export type AllowedAiModel = z.infer<typeof AllowedAiModelSchema>;
+export type ApiKeyStatus = z.infer<typeof ApiKeyStatusSchema>;
+export type AiSettings = z.infer<typeof AiSettingsSchema>;
+
+export const UpdateAiModelsSchema = z.object({
+  model_plan_generation: AllowedAiModelSchema,
+  model_regeneration: AllowedAiModelSchema,
+  model_scheduling: AllowedAiModelSchema,
+});
+
+export type UpdateAiModels = z.infer<typeof UpdateAiModelsSchema>;
+
+export const UpdateApiKeySchema = z.object({
+  api_key: z.string().min(1, "API key is required"),
+});
+
+export type UpdateApiKey = z.infer<typeof UpdateApiKeySchema>;
 
 // ── Request bodies ───────────────────────────────────────────────────────────
 
