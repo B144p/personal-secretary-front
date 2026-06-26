@@ -103,7 +103,7 @@ export function PlanActionBar({ planId, status, isPaused, onRegenerate }: Props)
         </>
       )}
 
-      {status === "SCHEDULED" && isPaused && (
+      {status === "HOLD" && isPaused && (
         <Button
           size="sm"
           onClick={() => resume.mutate()}

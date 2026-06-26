@@ -10,6 +10,7 @@ export const errorMessages: Record<ErrorCode, string> = {
   PLAN_NOT_EDITABLE: "This plan cannot be edited in its current state.",
   INVALID_TRANSITION: "That status transition is not allowed.",
   ANOTHER_PLAN_SCHEDULED: "You already have an active scheduled plan.",
+  SCHEDULING_IN_PROGRESS: "This plan is already being scheduled. Please wait.",
   PLAN_PAUSED: "This plan is paused. Resume it before scheduling.",
   REASON_REQUIRED: "Please provide a reason of at least 10 characters.",
   INVALID_GOAL: "Goal must be at least 5 characters.",

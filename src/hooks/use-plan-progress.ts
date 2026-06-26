@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch, toastApiError, ApiError } from "@/lib/api";
+import { FEEDBACK_TIMEOUT_MS } from "@/lib/timeouts";
 import {
   PlanProgressSchema,
   FeedbackResponseSchema,
@@ -25,6 +26,7 @@ export function useSubmitFeedback() {
       const data = await apiFetch<unknown>("/plan-progress", {
         method: "PATCH",
         body: JSON.stringify(body),
+        timeoutMs: FEEDBACK_TIMEOUT_MS,
       });
       return FeedbackResponseSchema.parse(data);
     },
