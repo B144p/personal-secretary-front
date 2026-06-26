@@ -3,6 +3,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { apiFetch, toastApiError, ApiError } from "@/lib/api";
 import {
+  AI_GENERATION_TIMEOUT_MS,
+  CALENDAR_SCHEDULE_TIMEOUT_MS,
+} from "@/lib/timeouts";
+import {
   PlanSchema,
   ScheduleResponseSchema,
   type Plan,
@@ -18,6 +22,7 @@ export function useGeneratePlan() {
       const data = await apiFetch<unknown>("/plan/generate", {
         method: "POST",
         body: JSON.stringify({ goal }),
+        timeoutMs: AI_GENERATION_TIMEOUT_MS,
       });
       return PlanSchema.parse(data);
     },
@@ -84,6 +89,7 @@ export function useRegenerate(planId: string) {
       apiFetch<Plan>(`/plan/${planId}/re_generate`, {
         method: "POST",
         body: JSON.stringify({ task_id: taskId, reason }),
+        timeoutMs: AI_GENERATION_TIMEOUT_MS,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
@@ -96,7 +102,10 @@ export function useSchedulePlan(planId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch(`/plan/${planId}/schedule`, { method: "PATCH" }),
+      apiFetch(`/plan/${planId}/schedule`, {
+        method: "PATCH",
+        timeoutMs: CALENDAR_SCHEDULE_TIMEOUT_MS,
+      }),
     onSuccess: (data) => {
       const parsed = ScheduleResponseSchema.safeParse(data);
       if (parsed.success && parsed.data.unscheduledTaskIds.length > 0) {
@@ -180,7 +189,10 @@ export function useResumePlan(planId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch(`/plan/${planId}/resume`, { method: "PATCH" }),
+      apiFetch(`/plan/${planId}/resume`, {
+        method: "PATCH",
+        timeoutMs: CALENDAR_SCHEDULE_TIMEOUT_MS,
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan", planId] });
       qc.invalidateQueries({ queryKey: ["plans"] });
