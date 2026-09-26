@@ -109,7 +109,7 @@ export const PlanSchema = z.object({
   user_id: z.string(),
   title: z.string(),
   status: PlanStatusSchema,
-  source_type: z.enum(["GENERATE", "CALENDAR"]),
+  source_type: z.enum(["GENERATE", "CALENDAR", "CLAUDE_CODE"]),
   is_paused: z.boolean(),
   paused_at: z.string().datetime({ offset: true }).nullable().optional(),
   created_at: z.string().datetime({ offset: true }),
