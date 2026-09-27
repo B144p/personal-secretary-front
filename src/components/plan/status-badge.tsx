@@ -22,6 +22,7 @@ const taskLabels: Record<TaskStatus, string> = {
   IN_PROGRESS: "In Progress",
   DONE: "Done",
   HOLD: "Hold",
+  CANCELLED: "Cancelled",
 };
 
 export function PlanStatusBadge({ status }: { status: PlanStatus }) {
@@ -38,6 +39,7 @@ export function TaskStatusBadge({ status }: { status: TaskStatus }) {
     IN_PROGRESS: "default",
     DONE: "secondary",
     HOLD: "secondary",
+    CANCELLED: "destructive",
   };
   return <Badge variant={variantMap[status]}>{taskLabels[status]}</Badge>;
 }

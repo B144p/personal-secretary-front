@@ -49,6 +49,8 @@ export const TaskStatusSchema = z.enum([
   "IN_PROGRESS",
   "DONE",
   "HOLD",
+  // Claude Code plans only: a step dropped on purpose, reason in status_note.
+  "CANCELLED",
 ]);
 
 export type PlanStatus = z.infer<typeof PlanStatusSchema>;
@@ -77,6 +79,7 @@ export type Task = {
   title: string;
   description: string;
   status: TaskStatus;
+  status_note?: string | null;
   depth: number;
   estimated_minutes: number | null;
   sequence_order: number;
@@ -93,6 +96,7 @@ export const TaskSchema: z.ZodType<Task> = z.lazy(() =>
     title: z.string(),
     description: z.string(),
     status: TaskStatusSchema,
+    status_note: z.string().nullable().optional(),
     depth: z.number().int(),
     estimated_minutes: z.number().int().nullable(),
     sequence_order: z.number().int(),
