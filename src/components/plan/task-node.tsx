@@ -77,7 +77,9 @@ export function TaskNode({
         <div className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="min-w-0 truncate font-medium text-sm">
+              <span
+                className={`min-w-0 truncate font-medium text-sm${task.status === "CANCELLED" ? " text-muted-foreground line-through" : ""}`}
+              >
                 {task.title}
               </span>
             </TooltipTrigger>
@@ -86,6 +88,11 @@ export function TaskNode({
             </TooltipContent>
           </Tooltip>
           <TaskStatusBadge status={task.status} />
+          {task.status_note && (
+            <span className="basis-full text-xs text-muted-foreground">
+              {task.status_note}
+            </span>
+          )}
           {activeEvent && (
             <span className="text-xs text-muted-foreground">
               {formatInTz(activeEvent.start, tz)} –{" "}
