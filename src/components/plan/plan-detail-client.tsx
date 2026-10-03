@@ -65,6 +65,7 @@ export function PlanDetailClient({ planId }: { planId: string }) {
           planId={plan.id}
           status={plan.status}
           isPaused={plan.is_paused}
+          isClaudeCode={plan.source_type === "CLAUDE_CODE"}
           onRegenerate={() => regenDialog.trigger(undefined)}
         />
       </div>
