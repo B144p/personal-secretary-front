@@ -116,6 +116,12 @@ export const PlanSchema = z.object({
   source_type: z.enum(["GENERATE", "CALENDAR", "CLAUDE_CODE"]),
   is_paused: z.boolean(),
   paused_at: z.string().datetime({ offset: true }).nullable().optional(),
+  // Claude Code plans: the repo (normalized origin URL or path) and branch
+  // they were made in, and the plan they follow up on.
+  repo_key: z.string().nullable().optional(),
+  branch: z.string().nullable().optional(),
+  parent_plan_id: z.string().nullable().optional(),
+  last_activity_at: z.string().datetime({ offset: true }).optional(),
   created_at: z.string().datetime({ offset: true }),
   tasks: z.array(TaskSchema),
 });

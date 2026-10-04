@@ -1,6 +1,7 @@
 "use client";
 
-import { ClockIcon, PlusIcon } from "lucide-react";
+import Link from "next/link";
+import { ClockIcon, GitBranchIcon, PlusIcon } from "lucide-react";
 import { usePlan } from "@/hooks/use-plan";
 import { useSettings } from "@/hooks/use-settings";
 import { PlanStatusBadge } from "@/components/plan/status-badge";
@@ -44,6 +45,7 @@ export function PlanDetailClient({ planId }: { planId: string }) {
 
   const canEdit = plan.status === "DRAFT" && !plan.is_paused;
   const totalMinutes = sumLeafMinutes(plan.tasks);
+  const isClaudeCode = plan.source_type === "CLAUDE_CODE";
 
   return (
     <div className="space-y-6">
@@ -61,11 +63,33 @@ export function PlanDetailClient({ planId }: { planId: string }) {
           {plan.is_paused && <Badge variant="outline">Paused</Badge>}
         </div>
 
+        {isClaudeCode && (plan.repo_key || plan.parent_plan_id) && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            {plan.repo_key && (
+              <span className="inline-flex items-center gap-1">
+                <GitBranchIcon className="size-3.5" />
+                <span className="font-mono">
+                  {plan.repo_key}
+                  {plan.branch && ` · ${plan.branch}`}
+                </span>
+              </span>
+            )}
+            {plan.parent_plan_id && (
+              <Link
+                href={`/plans/${plan.parent_plan_id}`}
+                className="underline underline-offset-2 hover:text-foreground"
+              >
+                Follow-up of an earlier plan
+              </Link>
+            )}
+          </div>
+        )}
+
         <PlanActionBar
           planId={plan.id}
           status={plan.status}
           isPaused={plan.is_paused}
-          isClaudeCode={plan.source_type === "CLAUDE_CODE"}
+          isClaudeCode={isClaudeCode}
           onRegenerate={() => regenDialog.trigger(undefined)}
         />
       </div>

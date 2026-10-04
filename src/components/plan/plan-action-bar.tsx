@@ -131,6 +131,18 @@ export function PlanActionBar({
         </Button>
       )}
 
+      {/* On hold without a pause, e.g. a Claude Code plan idle for 30 days. */}
+      {status === "HOLD" && !isPaused && (
+        <Button
+          size="sm"
+          onClick={() => transition.mutate("READY")}
+          disabled={isAnyPending}
+        >
+          {transition.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+          Reopen
+        </Button>
+      )}
+
       {status !== "DONE" && (
         <Button
           size="sm"
