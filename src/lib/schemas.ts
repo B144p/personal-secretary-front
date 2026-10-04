@@ -113,9 +113,11 @@ export const PlanSchema = z.object({
   user_id: z.string(),
   title: z.string(),
   status: PlanStatusSchema,
-  source_type: z.enum(["GENERATE", "CALENDAR", "CLAUDE_CODE"]),
+  source_type: z.enum(["GENERATE", "CALENDAR", "CLAUDE_CODE", "AGENT"]),
   is_paused: z.boolean(),
   paused_at: z.string().datetime({ offset: true }).nullable().optional(),
+  // Agent plans: the agent's name (e.g. "tutor"). Claude Code: the remote.
+  source_id: z.string().nullable().optional(),
   // Claude Code plans: the repo (normalized origin URL or path) and branch
   // they were made in, and the plan they follow up on.
   repo_key: z.string().nullable().optional(),
