@@ -125,10 +125,12 @@ export const PlanSchema = z.object({
   parent_plan_id: z.string().nullable().optional(),
   last_activity_at: z.string().datetime({ offset: true }).optional(),
   created_at: z.string().datetime({ offset: true }),
+  updated_at: z.string().datetime({ offset: true }).optional(),
   tasks: z.array(TaskSchema),
 });
 
 export type Plan = z.infer<typeof PlanSchema>;
+export type PlanSource = Plan["source_type"];
 
 // ── User ─────────────────────────────────────────────────────────────────────
 
