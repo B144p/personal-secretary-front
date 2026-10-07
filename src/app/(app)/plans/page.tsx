@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { usePlans } from "@/hooks/use-plans";
 import { useSettings } from "@/hooks/use-settings";
-import { PlanStatusBadge } from "@/components/plan/status-badge";
+import {
+  PlanSourceBadge,
+  PlanStatusBadge,
+  sourceLabels,
+} from "@/components/plan/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,29 +25,92 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatInTz } from "@/lib/time";
-import type { Task } from "@/lib/schemas";
-import { PlusIcon } from "lucide-react";
+import {
+  sortPlans,
+  stepProgress,
+  updatedAt,
+  type SortDir,
+  type SortKey,
+} from "@/lib/plan-list";
+import { cn } from "@/lib/utils";
+import {
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
+  PlusIcon,
+} from "lucide-react";
 
-function countTasks(tasks: Task[]): number {
-  return tasks.reduce(
-    (sum, t) => sum + 1 + countTasks(t.children),
-    0
+// A header that sorts by its column; a second click flips the direction.
+function SortHead({
+  label,
+  column,
+  sort,
+  onSort,
+  className,
+}: {
+  label: string;
+  column: SortKey;
+  sort: { key: SortKey; dir: SortDir };
+  onSort: (key: SortKey) => void;
+  className?: string;
+}) {
+  const active = sort.key === column;
+  const Icon = !active
+    ? ArrowUpDownIcon
+    : sort.dir === "asc"
+      ? ArrowUpIcon
+      : ArrowDownIcon;
+  return (
+    <TableHead
+      className={className}
+      aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(column)}
+        className={cn(
+          "inline-flex items-center gap-1 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          active && "text-foreground",
+        )}
+      >
+        {label}
+        <Icon className={cn("size-3.5", !active && "opacity-40")} />
+      </button>
+    </TableHead>
   );
 }
 
-function countHeldLeaves(tasks: Task[]): number {
-  return tasks.reduce((sum, t) => {
-    if (t.children.length === 0) {
-      return sum + (t.status === "HOLD" ? 1 : 0);
-    }
-    return sum + countHeldLeaves(t.children);
-  }, 0);
-}
+// Text columns start A→Z; status in lifecycle order; numbers and dates
+// start with the largest / newest.
+const FIRST_DIR: Record<SortKey, SortDir> = {
+  title: "asc",
+  source: "asc",
+  status: "asc",
+  tasks: "desc",
+  created: "desc",
+  updated: "desc",
+};
 
 export default function PlansPage() {
   const { data: plans, isLoading, error } = usePlans();
   const { data: settings } = useSettings();
   const tz = settings?.time_zone ?? "UTC";
+  // Newest activity first, the same order the backend returns.
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
+    key: "updated",
+    dir: "desc",
+  });
+  const onSort = (key: SortKey) =>
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: FIRST_DIR[key] },
+    );
+  const sorted = useMemo(
+    () =>
+      sortPlans(plans ?? [], sort.key, sort.dir, (p) => sourceLabels[p.source_type]),
+    [plans, sort],
+  );
 
   if (isLoading) {
     return <p className="text-muted-foreground">Loading plans…</p>;
@@ -74,18 +142,21 @@ export default function PlansPage() {
           </Button>
         </div>
       ) : (
-        <Table className="table-fixed">
+        <Table className="min-w-[760px] table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Goal</TableHead>
-              <TableHead className="w-32">Status</TableHead>
-              <TableHead className="w-20">Tasks</TableHead>
-              <TableHead className="w-36">Created</TableHead>
+              <SortHead label="Goal" column="title" sort={sort} onSort={onSort} />
+              <SortHead label="Source" column="source" sort={sort} onSort={onSort} className="w-32" />
+              <SortHead label="Status" column="status" sort={sort} onSort={onSort} className="w-28" />
+              <SortHead label="Tasks" column="tasks" sort={sort} onSort={onSort} className="w-24" />
+              <SortHead label="Created" column="created" sort={sort} onSort={onSort} className="w-32" />
+              <SortHead label="Updated" column="updated" sort={sort} onSort={onSort} className="w-32" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {plans.map((plan) => {
-              const heldCount = countHeldLeaves(plan.tasks);
+            {sorted.map((plan) => {
+              const steps = stepProgress(plan.tasks);
+              const heldCount = steps.hold;
               return (
                 <TableRow key={plan.id}>
                   <TableCell>
@@ -112,13 +183,41 @@ export default function PlansPage() {
                     </div>
                   </TableCell>
                   <TableCell>
+                    <PlanSourceBadge source={plan.source_type} />
+                  </TableCell>
+                  <TableCell>
                     <PlanStatusBadge status={plan.status} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {countTasks(plan.tasks)}
+                  <TableCell className="tabular-nums text-muted-foreground">
+                    <Tooltip>
+                      <TooltipTrigger className="cursor-default">
+                        <span
+                          className={cn(
+                            steps.counted > 0 &&
+                              steps.done === steps.counted &&
+                              "text-green-700 dark:text-green-400",
+                          )}
+                        >
+                          {steps.done}/{steps.counted}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {steps.done} of {steps.counted} steps done
+                        {steps.hold + steps.cancelled > 0 &&
+                          ` · not counted: ${[
+                            steps.hold && `${steps.hold} on hold`,
+                            steps.cancelled && `${steps.cancelled} cancelled`,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}`}
+                      </TooltipContent>
+                    </Tooltip>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatInTz(plan.created_at, tz, "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatInTz(updatedAt(plan), tz, "MMM d, yyyy")}
                   </TableCell>
                 </TableRow>
               );
