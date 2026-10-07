@@ -17,8 +17,10 @@ interface Props {
   status: PlanStatus;
   isPaused: boolean;
   // Claude Code plans are the plan Claude executes: never sent to OpenAI or
-  // booked on the calendar (the backend returns 422 for both).
-  isClaudeCode: boolean;
+  // booked on the calendar. Agent plans can be booked but not regenerated.
+  // The backend returns 422 for either.
+  canSchedule: boolean;
+  canRegenerate: boolean;
   onRegenerate: () => void;
 }
 
@@ -26,7 +28,8 @@ export function PlanActionBar({
   planId,
   status,
   isPaused,
-  isClaudeCode,
+  canSchedule,
+  canRegenerate,
   onRegenerate,
 }: Props) {
   const markReady = useMarkReady(planId);
@@ -56,21 +59,21 @@ export function PlanActionBar({
             {markReady.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
             Mark Ready
           </Button>
-          {!isClaudeCode && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => schedule.mutate()}
-                disabled={isAnyPending}
-              >
-                {schedule.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
-                Schedule
-              </Button>
-              <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
-                Regenerate
-              </Button>
-            </>
+          {canSchedule && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => schedule.mutate()}
+              disabled={isAnyPending}
+            >
+              {schedule.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              Schedule
+            </Button>
+          )}
+          {canRegenerate && (
+            <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
+              Regenerate
+            </Button>
           )}
         </>
       )}
@@ -85,29 +88,31 @@ export function PlanActionBar({
           >
             Back to Draft
           </Button>
-          {!isClaudeCode && (
-            <>
-              <Button
-                size="sm"
-                onClick={() => schedule.mutate()}
-                disabled={isAnyPending}
-              >
-                {schedule.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
-                Schedule
-              </Button>
-              <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
-                Regenerate
-              </Button>
-            </>
+          {canSchedule && (
+            <Button
+              size="sm"
+              onClick={() => schedule.mutate()}
+              disabled={isAnyPending}
+            >
+              {schedule.isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              Schedule
+            </Button>
+          )}
+          {canRegenerate && (
+            <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
+              Regenerate
+            </Button>
           )}
         </>
       )}
 
       {status === "SCHEDULED" && !isPaused && (
         <>
-          <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
-            Regenerate
-          </Button>
+          {canRegenerate && (
+            <Button size="sm" variant="outline" onClick={onRegenerate} disabled={isAnyPending}>
+              Regenerate
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"

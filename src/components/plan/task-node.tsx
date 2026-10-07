@@ -28,6 +28,8 @@ interface Props {
   planStatus: PlanStatus;
   isPaused: boolean;
   tz: string;
+  // False for Claude Code and agent plans: only generated plans go to OpenAI.
+  canRegenerate: boolean;
   onRegenerate: (taskId: string) => void;
   onAddSubtask: (taskId: string) => void;
   onDelete: (task: Task) => void;
@@ -39,6 +41,7 @@ export function TaskNode({
   planStatus,
   isPaused,
   tz,
+  canRegenerate,
   onRegenerate,
   onAddSubtask,
   onDelete,
@@ -133,7 +136,7 @@ export function TaskNode({
               </Button>
             </>
           )}
-          {planStatus !== "DONE" && !isPaused && (
+          {canRegenerate && planStatus !== "DONE" && !isPaused && (
             <Button
               variant="ghost"
               size="icon"
@@ -158,6 +161,7 @@ export function TaskNode({
               planStatus={planStatus}
               isPaused={isPaused}
               tz={tz}
+              canRegenerate={canRegenerate}
               onRegenerate={onRegenerate}
               onAddSubtask={onAddSubtask}
               onDelete={onDelete}

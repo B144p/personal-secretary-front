@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ClockIcon, GitBranchIcon, PlusIcon } from "lucide-react";
+import { BotIcon, ClockIcon, GitBranchIcon, PlusIcon } from "lucide-react";
 import { usePlan } from "@/hooks/use-plan";
 import { useSettings } from "@/hooks/use-settings";
 import { PlanStatusBadge } from "@/components/plan/status-badge";
@@ -46,6 +46,8 @@ export function PlanDetailClient({ planId }: { planId: string }) {
   const canEdit = plan.status === "DRAFT" && !plan.is_paused;
   const totalMinutes = sumLeafMinutes(plan.tasks);
   const isClaudeCode = plan.source_type === "CLAUDE_CODE";
+  const isAgent = plan.source_type === "AGENT";
+  const canRegenerate = !isClaudeCode && !isAgent;
 
   return (
     <div className="space-y-6">
@@ -61,6 +63,12 @@ export function PlanDetailClient({ planId }: { planId: string }) {
             </Badge>
           )}
           {plan.is_paused && <Badge variant="outline">Paused</Badge>}
+          {isAgent && (
+            <Badge variant="secondary" className="gap-1">
+              <BotIcon className="size-3" />
+              Agent{plan.source_id ? `: ${plan.source_id}` : ""}
+            </Badge>
+          )}
         </div>
 
         {isClaudeCode && (plan.repo_key || plan.parent_plan_id) && (
@@ -89,7 +97,8 @@ export function PlanDetailClient({ planId }: { planId: string }) {
           planId={plan.id}
           status={plan.status}
           isPaused={plan.is_paused}
-          isClaudeCode={isClaudeCode}
+          canSchedule={!isClaudeCode}
+          canRegenerate={canRegenerate}
           onRegenerate={() => regenDialog.trigger(undefined)}
         />
       </div>
@@ -133,6 +142,7 @@ export function PlanDetailClient({ planId }: { planId: string }) {
                 planStatus={plan.status}
                 isPaused={plan.is_paused}
                 tz={tz}
+                canRegenerate={canRegenerate}
                 onRegenerate={(taskId) => regenDialog.trigger(taskId)}
                 onAddSubtask={(taskId) => addDialog.trigger(taskId)}
                 onDelete={(task) => delDialog.trigger(task)}
